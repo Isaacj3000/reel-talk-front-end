@@ -1,0 +1,42 @@
+/* ✅ General Navbar Styles */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1a1a2e;
+    padding: 15px 40px;
+}
+
+/* ✅ Logo Section */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-logo {
+    height: 50px;  /* Adjust based on your logo size */
+    width: auto;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.1);
+}
+
+/* ✅ Nav Links */
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.nav-links li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.nav-links li a:hover {
+    color: #ff4757;  /* Change to a cool hover effect */
+}

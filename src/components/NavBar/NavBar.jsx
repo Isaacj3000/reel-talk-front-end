@@ -1,5 +1,7 @@
+import './NavBar.css';
 import { useContext } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom'; 
+
 
 import { UserContext } from '../../contexts/UserContext';
 
@@ -15,8 +17,10 @@ const NavBar = () => {
     <nav>
       {user ? (
         <ul>
-          <li>Welcome, {user.username}</li>
-          <li><Link to='/'>Dashboard</Link></li>
+          <li><Link to='/'>Home</Link></li>
+          <li><Link to='/reelTalk'>Reels</Link></li>
+          <li><Link to='/reels/new'>New Reel</Link></li>
+          <li><Link to='/trendingReels'>TrenDING🔥</Link></li>
           <li><Link to='/' onClick={handleSignOut}>Sign Out</Link></li>
         </ul>
       ) : (
@@ -31,3 +35,4 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
