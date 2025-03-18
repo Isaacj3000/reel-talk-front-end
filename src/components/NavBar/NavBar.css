@@ -1,42 +1,83 @@
-/* ✅ General Navbar Styles */
+/* ✅ Navbar Container */
 .navbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    background: #1a1a2e;
-    padding: 15px 40px;
-}
-
-/* ✅ Logo Section */
-.logo {
-    display: flex;
     align-items: center;
+    background: #ff5722;
+    padding: 15px 30px;
+    color: white;
+    font-family: Arial, sans-serif;
 }
 
-.navbar-logo {
-    height: 50px;  /* Adjust based on your logo size */
-    width: auto;
-    transition: transform 0.2s ease-in-out;
-}
 
-.navbar-logo:hover {
-    transform: scale(1.1);
-}
-
-/* ✅ Nav Links */
+/* ✅ Navigation Links */
 .nav-links {
-    display: flex;
     list-style: none;
+    display: flex;
     gap: 20px;
 }
 
-.nav-links li a {
+.nav-links li {
+    display: inline-block;
+}
+
+.nav-links a {
     color: white;
     text-decoration: none;
     font-size: 1rem;
-    transition: color 0.3s;
+    transition: 0.3s;
 }
 
-.nav-links li a:hover {
-    color: #ff4757;  /* Change to a cool hover effect */
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+/* ✅ Sign-Out Button */
+.sign-out {
+    background: white;
+    color: #ff5722;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.sign-out:hover {
+    background: #fdd835;
+}
+
+/* ✅ Mobile Menu Toggle */
+.menu-toggle {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+/* ✅ Responsive Styles */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: #ff5722;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links li {
+        margin-bottom: 10px;
+    }
 }

@@ -1,0 +1,82 @@
+/* ✅ General Landing Page Styles */
+.landing-container {
+    text-align: center;
+    padding: 50px;
+    background: linear-gradient(to right, #1a1a2e, #16213e);
+    color: white;
+    min-height: 100vh;
+}
+
+/* ✅ Hero Section */
+.hero {
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+/* ✅ CTA Buttons */
+.cta-buttons {
+    margin-top: 20px;
+}
+
+.cta-buttons button {
+    margin: 10px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.sign-up-btn {
+    background-color: #ff4757;
+    color: white;
+}
+
+.sign-up-btn:hover {
+    background-color: #e84118;
+}
+
+.sign-in-btn {
+    background-color: #0097e6;
+    color: white;
+}
+
+.sign-in-btn:hover {
+    background-color: #0077b6;
+}
+
+/* ✅ Features Section */
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.feature {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.feature:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.h1 {
+    font-size: 2rem;
+    color: #e6d8d8;
+    margin-bottom: 10px;
+}
