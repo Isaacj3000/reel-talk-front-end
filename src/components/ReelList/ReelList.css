@@ -1,0 +1,109 @@
+/* ✅ Reel List Container */
+.reel-list-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* ✅ Individual Reel Card */
+.reel-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: 0.3s ease;
+}
+
+.reel-card:hover {
+    transform: scale(1.02);
+}
+
+/* ✅ Reel Header */
+.reel-header h2 {
+    font-size: 1.5rem;
+    color: #ff5722;
+    margin-bottom: 5px;
+}
+
+.reel-meta {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* ✅ Reel Text */
+.reel-text {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 10px 0;
+}
+
+/* ✅ Like & Comment Section */
+.reel-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.like-btn {
+    background: #ff5722;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.like-btn:hover {
+    background: #e64a19;
+}
+
+/* ✅ Comment Input */
+.comment-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* ✅ Comments Section */
+.comments-section {
+    margin-top: 15px;
+}
+
+.comment {
+    font-size: 0.9rem;
+    color: #444;
+    background: #f9f9f9;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+/* ✅ No Comments Message */
+.no-comments {
+    color: #888;
+    font-style: italic;
+}
+
+/* ✅ View Details Button */
+.view-details-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #ff5722;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.view-details-btn:hover {
+    background: #e64a19;
+}

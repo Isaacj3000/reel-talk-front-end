@@ -1,29 +1,30 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import * as reelService from "../../services/reelService";
+import "./ReelList.css";
 
 const ReelList = ({ reels, setReels }) => {
+    const [commentText, setCommentText] = useState({}); // ✅ Store comment input per reel
+
     if (!reels || reels.length === 0) {
-        return <p>No reels available.</p>;
+        return <p className="no-reels">No reels available.</p>;
     }
 
     // ✅ Handle Liking a Reel
     const handleLike = async (reelId) => {
         const updatedReel = await reelService.likeReel(reelId);
-
         if (updatedReel) {
             setReels(prevReels =>
-                prevReels.map(reel => reel._id === updatedReel._id ? updatedReel : reel)
+                prevReels.map(reel => (reel._id === updatedReel._id ? updatedReel : reel))
             );
         }
     };
 
     // ✅ Handle Adding a Comment
-    const handleAddComment = async (reelId, commentText) => {
-        if (!commentText.trim()) return;  // Prevent empty comments
+    const handleAddComment = async (reelId) => {
+        if (!commentText[reelId]?.trim()) return;  // Prevent empty comments
 
-        const newComment = await reelService.createComment(reelId, { text: commentText });
-
+        const newComment = await reelService.createComment(reelId, { text: commentText[reelId] });
         if (newComment) {
             setReels(prevReels =>
                 prevReels.map(reel =>
@@ -32,53 +33,84 @@ const ReelList = ({ reels, setReels }) => {
                         : reel
                 )
             );
+            setCommentText({ ...commentText, [reelId]: "" }); // ✅ Clear input after posting
+        }
+    };
+
+    // ✅ Handle Deleting a Reel
+    const handleDelete = async (reelId) => {
+        if (!window.confirm("Are you sure you want to delete this reel?")) return;
+    
+        const success = await reelService.deleteReel(reelId);
+        if (success) {
+            setReels(prevReels => prevReels.filter(reel => reel._id !== reelId));
+            alert("✅ Reel deleted successfully!");
+        } else {
+            alert("❌ Failed to delete reel.");
         }
     };
 
     return (
-        <main>
+        <main className="reel-list-container">
             {reels.map((reel) => (
-                <article key={reel._id}>
-                    <header>
+                <article key={reel._id} className="reel-card">
+                    {/* ✅ Reel Header */}
+                    <header className="reel-header">
                         <h2>{reel.title}</h2>
-                        <p>
-                            {`${reel.author?.username || "Unknown"} Posted on 
+                        <p className="reel-meta">
+                            {`${reel.author?.username || "Unknown"} • 
                             ${new Date(reel.createdAt).toLocaleDateString()}`}
                         </p>
                     </header>
-                    <p>{reel.text}</p>
 
-                    {/* ✅ Like Button */}
-                    <button onClick={() => handleLike(reel._id)}>
-                        ❤️ {reel.likes?.length || 0} Likes
-                    </button>
+                    {/* Reel Text */}
+                    <p className="reel-text">{reel.text}</p>
 
-                    {/* ✅ Comment Input */}
-                    <input
-                        type="text"
-                        placeholder="Add a comment..."
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                handleAddComment(reel._id, e.target.value);
-                                e.target.value = ""; // ✅ Clear input after comment
-                            }
-                        }}
-                    />
+                    {/* ✅ Like & Comment Section */}
+                    <div className="reel-actions">
+                        <button className="like-btn" onClick={() => handleLike(reel._id)}>
+                            ❤️ {reel.likes?.length || 0} Likes
+                        </button>
+
+                        {/* ✅ Add a Comment */}
+                        <input
+                            type="text"
+                            className="comment-input"
+                            placeholder="Add a comment..."
+                            value={commentText[reel._id] || ""} // ✅ Track comment per reel
+                            onChange={(e) => setCommentText({ ...commentText, [reel._id]: e.target.value })}
+                        />
+                        <button className="comment-btn" onClick={() => handleAddComment(reel._id)}>
+                            💬 Post Comment
+                        </button>
+                    </div>
 
                     {/* ✅ Display Comments */}
-                    {reel.comments?.length > 0 ? (
-                        reel.comments.map((comment) => (
-                            <p key={comment._id}>
-                                <strong>{comment.author?.username || "Anonymous"}:</strong> {comment.text}
+                    <div className="comments-section">
+                        {reel.comments?.length > 0 ? (
+                                 reel.comments.map((comment) => (
+                            <p key={comment._id} className="comment">
+                                  <strong>{comment.author ? comment.author.username : "Anonymous"}:</strong> {comment.text}
                             </p>
-                        ))
-                    ) : (
-                        <p>No comments yet. Be the first to comment!</p>
-                    )}
+                              ))
+                             ) : (
+                       <p className="no-comments">No comments yet. Be the first to comment!</p>
+                         )}
+                    </div>
 
-                    {/* ✅ Link to Full Reel Details */}
-                    <Link to={`/reels/${reel._id}`}>
-                        <button>View Details</button>
+                    {/* ✅ Edit & Delete Buttons */}
+                    <div className="reel-buttons">
+                        <Link to={`/reels/${reel._id}/edit`} className="edit-btn">
+                            ✏️ Edit
+                        </Link>
+                        <button className="delete-btn" onClick={() => handleDelete(reel._id)}>
+                            ❌ Delete
+                        </button>
+                    </div>
+
+                    {/* ✅ View Full Reel */}
+                    <Link to={`/reels/${reel._id}`} className="view-details-btn">
+                        View Details
                     </Link>
                 </article>
             ))}

@@ -1,4 +1,4 @@
-/* ✅ Navbar Container */
+/* ✅ Navbar Styles */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -9,11 +9,28 @@
     font-family: Arial, sans-serif;
 }
 
+/* ✅ Logo */
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.nav-logo h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
 
 /* ✅ Navigation Links */
 .nav-links {
     list-style: none;
     display: flex;
+    align-items: center;
     gap: 20px;
 }
 
@@ -32,8 +49,8 @@
     text-decoration: underline;
 }
 
-/* ✅ Sign-Out Button */
-.sign-out {
+/* ✅ Log Out Button */
+.nav-signout {
     background: white;
     color: #ff5722;
     border: none;
@@ -44,7 +61,7 @@
     transition: 0.3s;
 }
 
-.sign-out:hover {
+.nav-signout:hover {
     background: #fdd835;
 }
 
@@ -55,7 +72,7 @@
     cursor: pointer;
 }
 
-/* ✅ Responsive Styles */
+/* ✅ Mobile Responsive */
 @media (max-width: 768px) {
     .menu-toggle {
         display: block;

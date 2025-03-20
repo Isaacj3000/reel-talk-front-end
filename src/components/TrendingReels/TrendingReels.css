@@ -1,0 +1,40 @@
+.trending-reels-container {
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+}
+
+.trending-reel-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.trending-reel-card h2 {
+    color: #ff4500;
+}
+
+.reel-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.view-details-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #ff4500;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 10px;
+}
