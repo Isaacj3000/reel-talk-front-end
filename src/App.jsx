@@ -28,10 +28,25 @@ const App = () => {
       navigate('/reeltalk');
     }
   };
+  // i need to populate the reels with the data
+  // add api from the backend and call it in the frontend in reelService.js.
+  // Fetch Reels from Backend API
+  useEffect(() => {
+    const fetchReelsFromAPI = async () => {
+      try {
+        const reelsData = await reelService.index();
+        setReels(reelsData || []);
+      } catch (error) {
+        console.error('Error fetching reels:', error);
+      }
+    };
+
+    fetchReelsFromAPI();
+  }, []);
 
   const handleDeleteReel = async (reelId) => {
     console.log('reelId:', reelId);
-    SetReels(reels.filter((reel) => reel._id !== reelId));
+    setReels(reels.filter((reel) => reel._id !== reelId));
     navigate('/reeltalk');
   };
 

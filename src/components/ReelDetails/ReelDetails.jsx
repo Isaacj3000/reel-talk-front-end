@@ -132,8 +132,8 @@ const ReelDetails = ({ handleDeleteReel }) => {
                                         value={editedCommentText}
                                         onChange={(e) => setEditedCommentText(e.target.value)}
                                     />
-                                    <button onClick={() => handleUpdateComment(comment._id)}>✅ Save</button>
-                                    <button onClick={() => setEditingCommentId(null)}>❌ Cancel</button>
+                                    <button onClick={() => handleUpdateComment(comment._id)}> Save</button>
+                                    <button onClick={() => setEditingCommentId(null)}> Cancel</button>
                                 </div>
                             ) : (
                                 <>
@@ -146,9 +146,9 @@ const ReelDetails = ({ handleDeleteReel }) => {
                                                     setEditedCommentText(comment.text);
                                                 }}
                                             >
-                                                ✏️ Edit
+                                                 Edit
                                             </button>
-                                            <button onClick={() => handleDeleteComment(comment._id)}>❌ Delete</button>
+                                            <button onClick={() => handleDeleteComment(comment._id)}> Delete</button>
                                         </>
                                     )}
                                 </>
