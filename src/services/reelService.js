@@ -1,238 +1,44 @@
-// const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3570/reelTalk";
+const BASE_URL = `${import.meta.env.VITE_BACK_END_SERVER_URL}/reelTalk`;
+console.log('BASE_URL:', BASE_URL);
 
-// /* ==============================
-//     📌 GET REELS & TRENDING
-// ================================ */
-// const show = async (reelId) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}`, {
-//             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-//         });
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-//         return res.json();
-//     } catch (error) {
-//         console.error("🔥 Error Fetching Reel:", error);
-//         return null;
-//     }
-// };
+// Helper function to handle API responses
+const handleResponse = async (response) => {
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+};
 
-// const fetchTrendingReels = async () => {
-//     try {
-//         const res = await fetch(`${BASE_URL}`, {
-//             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-//         });
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-//         return res.json();
-//     } catch (error) {
-//         console.error("🔥 Trending Reels Fetch Error:", error);
-//         return [];
-//     }
-// };
+// Helper function to get auth token
+const getAuthToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('No authentication token found. Please sign in.');
+    }
+    return token;
+};
 
-// const index = async () => {
-//     try {
-//         const token = localStorage.getItem('token');
-//         if (!token) {
-//             console.error("🚨 No token found. User must sign in.");
-//             return [];
-//         }
-
-//         const res = await fetch(`${BASE_URL}`, {
-//             headers: { Authorization: `Bearer ${token}` },
-//         });
-
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-
-//         return res.json();
-//     } catch (err) {
-//         console.error("🔥 Error Fetching All Reels:", err);
-//         return [];
-//     }
-// };
-
-// /* ==============================
-//     📌 CREATE NEW REEL & COMMENTS
-// ================================ */
-// const create = async (reelFormData) => {
-//     try {
-//         const res = await fetch(BASE_URL, {
-//             method: 'POST',
-//             headers: {
-//                 Authorization: `Bearer ${localStorage.getItem('token')}`,
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(reelFormData),
-//         });
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-//         return res.json();
-//     } catch (err) {
-//         console.error('🔥 Create Reel Error:', err);
-//         return null;
-//     }
-// };
-
-// const createComment = async (reelId, commentFormData) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}/comments`, {
-//             method: 'POST',
-//             headers: {
-//                 Authorization: `Bearer ${localStorage.getItem('token')}`,
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(commentFormData),
-//         });
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-//         return res.json();
-//     } catch (error) {
-//         console.error("🔥 Create Comment Error:", error);
-//         return null;
-//     }
-// };
-
-// /* ==============================
-//     📌 LIKE / UNLIKE (Reels & Comments)
-// ================================ */
-// const likeReel = async (reelId) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}/like`, {
-//             method: "POST",
-//             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-//         });
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-//         return res.json();
-//     } catch (error) {
-//         console.error("🔥 Like Reel Error:", error);
-//         return null;
-//     }
-// };
-
-// const likeComment = async (reelId, commentId) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}/comments/${commentId}/like`, {
-//             method: "POST",
-//             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-//         });
-//         if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-//         return res.json();
-//     } catch (error) {
-//         console.error("🔥 Like Comment Error:", error);
-//         return null;
-//     }
-// };
-
-// /* ==============================
-//     📌 UPDATE (Reels & Comments)
-// ================================ */
-// const updateReel = async (reelId, reelData) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}`, {
-//             method: "PUT",
-//             headers: {
-//                 Authorization: `Bearer ${localStorage.getItem("token")}`,
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify(reelData),
-//         });
-
-//         if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-        
-//         return res.json();
-//     } catch (err) {
-//         console.error("Update Reel Error:", err);
-//         return null;
-//     }
-// };
-
-// const updateComment = async (reelId, commentId, updatedText) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}/comments/${commentId}`, {
-//             method: "PUT",
-//             headers: {
-//                 Authorization: `Bearer ${localStorage.getItem("token")}`,
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({ text: updatedText }),
-//         });
-
-//         if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-
-//         return res.json();
-//     } catch (err) {
-//         console.error("Update Comment Error:", err);
-//         return null;
-//     }
-// };
-
-// /* ==============================
-//     📌 DELETE (Reels & Comments)
-// ================================ */
-// const deleteReel = async (reelId) => {
-//     try {
-//       const res = await fetch(`${BASE_URL}/${reelId}`, {
-//         method: 'DELETE',
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem('token')}`,
-//         },
-//       });
-//       return res.json();
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
-  
-// const deleteComment = async (reelId, commentId) => {
-//     try {
-//         const res = await fetch(`${BASE_URL}/${reelId}/comments/${commentId}`, {
-//             method: 'DELETE',
-//             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-//         });
-
-//         if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-//         return true;
-//     } catch (err) {
-//         console.error("❌ Delete Comment Error:", err);
-//         return false;
-//     }
-// };
-
-// /* ==============================
-//     📌 EXPORT ALL FUNCTIONS
-// ================================ */
-// export {
-//     index,
-//     show,
-//     create,            
-//     fetchTrendingReels,         
-//     updateReel, 
-//     deleteReel,        
-//     likeReel,       
-//     createComment,   
-//     likeComment,     
-//     updateComment,   
-//     deleteComment,    
-// };
-
-
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3570/reelTalk";
+// Helper function to get user info from token
+const getUserFromToken = (token) => {
+    try {
+        return JSON.parse(atob(token.split('.')[1])).payload;
+    } catch (error) {
+        console.error('Error parsing token:', error);
+        throw new Error('Invalid authentication token');
+    }
+};
 
 /* ==============================
     📌 GET REELS & TRENDING
 ================================ */
 const index = async () => {
     try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            console.error("🚨 No token found. User must sign in.");
-            return [];
-        }
-
+        const token = getAuthToken();
         const res = await fetch(`${BASE_URL}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (err) {
         console.error("🔥 Error Fetching All Reels:", err);
         return [];
@@ -241,11 +47,11 @@ const index = async () => {
 
 const show = async (reelId) => {
     try {
+        const token = getAuthToken();
         const res = await fetch(`${BASE_URL}/${reelId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (error) {
         console.error("🔥 Error Fetching Reel:", error);
         return null;
@@ -254,11 +60,40 @@ const show = async (reelId) => {
 
 const fetchTrendingReels = async () => {
     try {
-        const res = await fetch(`${BASE_URL}/trending`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        const token = getAuthToken();
+        const res = await fetch(`${BASE_URL}`, {
+            headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+        
+        const data = await handleResponse(res);
+        console.log("Fetched reels data:", data); // Debug log
+        
+        // Validate and sort reels
+        const trendingReels = Array.isArray(data) ? data : [];
+        const sortedReels = trendingReels
+            .filter(reel => reel && typeof reel === 'object')
+            .sort((a, b) => {
+                // Calculate engagement score (likes + comments)
+                const scoreA = (a.likes?.length || 0) + (a.comments?.length || 0);
+                const scoreB = (b.likes?.length || 0) + (b.comments?.length || 0);
+                
+                // If scores are equal, sort by most recent
+                if (scoreA === scoreB) {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                }
+                
+                // Sort by engagement score
+                return scoreB - scoreA;
+            });
+        
+        // Ensure each reel has a comments array
+        const reelsWithComments = sortedReels.map(reel => ({
+            ...reel,
+            comments: reel.comments || []
+        }));
+        
+        console.log("Processed reels with comments:", reelsWithComments); // Debug log
+        return reelsWithComments.slice(0, 10);
     } catch (error) {
         console.error("🔥 Trending Reels Fetch Error:", error);
         return [];
@@ -270,37 +105,97 @@ const fetchTrendingReels = async () => {
 ================================ */
 const create = async (reelFormData) => {
     try {
+        const token = getAuthToken();
+        const user = getUserFromToken(token);
+
+        // Validate reel data
+        if (!reelFormData.title || !reelFormData.text) {
+            throw new Error('Title and text are required');
+        }
+
         const res = await fetch(BASE_URL, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(reelFormData),
+            body: JSON.stringify({
+                ...reelFormData,
+                author: user._id
+            }),
         });
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (err) {
         console.error('🔥 Create Reel Error:', err);
-        return null;
+        throw err;
     }
 };
 
 const createComment = async (reelId, commentFormData) => {
     try {
+        const token = getAuthToken();
+        const user = getUserFromToken(token);
+
+        console.log('Creating comment with data:', {
+            reelId,
+            commentFormData,
+            userId: user._id
+        });
+
+        // Validate comment data
+        if (!commentFormData.text || !commentFormData.text.trim()) {
+            throw new Error('Comment text is required');
+        }
+
+        // Format the comment data with minimal required fields
+        const commentData = {
+            text: commentFormData.text.trim(),
+            author: user._id
+        };
+
+        console.log('Sending comment data:', commentData);
+
         const res = await fetch(`${BASE_URL}/${reelId}/comments`, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(commentFormData),
+            body: JSON.stringify(commentData),
         });
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+
+        console.log('Response status:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Error response:', errorText);
+            let errorMessage;
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || `Error ${res.status}: ${res.statusText}`;
+            } catch (e) {
+                errorMessage = `Error ${res.status}: ${res.statusText}`;
+            }
+            throw new Error(errorMessage);
+        }
+
+        // Get the created comment
+        const responseData = await res.json();
+        console.log('Comment created successfully:', responseData);
+
+        // Return a simplified comment object with the necessary data
+        return {
+            _id: responseData._id,
+            text: responseData.text,
+            author: {
+                _id: user._id,
+                username: user.username
+            },
+            createdAt: new Date().toISOString()
+        };
     } catch (error) {
         console.error("🔥 Create Comment Error:", error);
-        return null;
+        throw error;
     }
 };
 
@@ -309,39 +204,49 @@ const createComment = async (reelId, commentFormData) => {
 ================================ */
 const updateReel = async (reelId, reelData) => {
     try {
+        const token = getAuthToken();
+        
+        // Validate reel data
+        if (!reelData.title || !reelData.text) {
+            throw new Error('Title and text are required');
+        }
+
         const res = await fetch(`${BASE_URL}/${reelId}`, {
             method: "PUT",
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(reelData),
         });
-
-        if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (err) {
         console.error("Update Reel Error:", err);
-        return null;
+        throw err;
     }
 };
 
 const updateComment = async (reelId, commentId, updatedText) => {
     try {
+        const token = getAuthToken();
+        
+        // Validate comment text
+        if (!updatedText) {
+            throw new Error('Comment text is required');
+        }
+
         const res = await fetch(`${BASE_URL}/${reelId}/comments/${commentId}`, {
             method: "PUT",
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ text: updatedText }),
         });
-
-        if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (err) {
         console.error("Update Comment Error:", err);
-        return null;
+        throw err;
     }
 };
 
@@ -350,29 +255,29 @@ const updateComment = async (reelId, commentId, updatedText) => {
 ================================ */
 const likeReel = async (reelId) => {
     try {
+        const token = getAuthToken();
         const res = await fetch(`${BASE_URL}/${reelId}/like`, {
             method: "POST",
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (error) {
         console.error("🔥 Like Reel Error:", error);
-        return null;
+        throw error;
     }
 };
 
 const likeComment = async (reelId, commentId) => {
     try {
+        const token = getAuthToken();
         const res = await fetch(`${BASE_URL}/${reelId}/comments/${commentId}/like`, {
             method: "POST",
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        return res.json();
+        return handleResponse(res);
     } catch (error) {
         console.error("🔥 Like Comment Error:", error);
-        return null;
+        throw error;
     }
 };
 
@@ -381,30 +286,73 @@ const likeComment = async (reelId, commentId) => {
 ================================ */
 const deleteReel = async (reelId) => {
     try {
+        const token = getAuthToken();
+        const user = getUserFromToken(token);
+        
+        console.log('Attempting to delete reel:', {
+            reelId,
+            userId: user._id,
+            username: user.username
+        });
+
         const res = await fetch(`${BASE_URL}/${reelId}`, {
             method: 'DELETE',
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'X-User-ID': user._id,
+                'X-Username': user.username
+            }
         });
-        return res.json();
+
+        console.log('Delete response status:', res.status);
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Delete error response:', errorText);
+            let errorMessage;
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || `Error ${res.status}: ${res.statusText}`;
+            } catch (e) {
+                errorMessage = `Error ${res.status}: ${res.statusText}`;
+            }
+            throw new Error(errorMessage);
+        }
+
+        // If the response is successful but empty, return true
+        if (res.status === 204) {
+            return true;
+        }
+
+        // Try to parse the response as JSON
+        try {
+            const data = await res.json();
+            return data;
+        } catch (e) {
+            // If parsing fails but status is ok, return true
+            return true;
+        }
     } catch (error) {
-        console.log(error);
+        console.error("🔥 Delete Reel Error:", error);
+        throw error;
     }
 };
 
 const deleteComment = async (reelId, commentId) => {
     try {
+        const token = getAuthToken();
         const res = await fetch(`${BASE_URL}/${reelId}/comments/${commentId}`, {
             method: 'DELETE',
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
         });
-
-        if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
-        return true;
-    } catch (err) {
-        console.error(" Delete Comment Error:", err);
-        return false;
+        return handleResponse(res);
+    } catch (error) {
+        console.error("🔥 Delete Comment Error:", error);
+        throw error;
     }
 };
 
