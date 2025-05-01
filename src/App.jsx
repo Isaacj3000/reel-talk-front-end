@@ -6,7 +6,6 @@ import NavBar from './components/NavBar/NavBar';
 import SignUpForm from './components/SignUpForm/SignUpForm';
 import SignInForm from './components/SignInForm/SignInForm';
 import Landing from './components/Landing/Landing';
-import Dashboard from './components/Dashboard/Dashboard';
 import * as reelService from './services/reelService'; 
 import TrendingReels from './components/TrendingReels/TrendingReels.jsx';
 import EditReel from './components/EditReel/EditReel.jsx';
@@ -14,68 +13,92 @@ import ReelList from './components/ReelList/ReelList.jsx';
 import ReelDetails from './components/ReelDetails/ReelDetails.jsx';
 import ReelForm from './components/ReelForm/ReelForm.jsx';
 
-
 const App = () => {
-  const { user } = useContext(UserContext);
+  const { user, loading: userLoading } = useContext(UserContext);
   const [reels, setReels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // ✅ Handle Adding a New Reel
-  const handleAddReel = async (reelData) => {
-    const newReel = await reelService.create(reelData);
-    if (newReel) {
-      setReels(prevReels => [newReel, ...prevReels]);
-      navigate('/reeltalk');
-    }
-  };
-  // i need to populate the reels with the data
-  // add api from the backend and call it in the frontend in reelService.js.
-  // Fetch Reels from Backend API
+  // Fetch reels when user is logged in
   useEffect(() => {
-    const fetchReelsFromAPI = async () => {
+    const fetchReels = async () => {
+      if (!user) {
+        setReels([]);
+        setLoading(false);
+        return;
+      }
+
       try {
+        setLoading(true);
         const reelsData = await reelService.index();
         setReels(reelsData || []);
-      } catch (error) {
-        console.error('Error fetching reels:', error);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching reels:', err);
+        setError('Failed to load reels');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchReelsFromAPI();
-  }, []);
+    fetchReels();
+  }, [user]);
 
-  const handleDeleteReel = async (reelId) => {
-    console.log('reelId:', reelId);
-    setReels(reels.filter((reel) => reel._id !== reelId));
-    navigate('/reeltalk');
+  const handleAddReel = async (reelData) => {
+    try {
+      const newReel = await reelService.create(reelData);
+      if (newReel) {
+        setReels(prevReels => [newReel, ...prevReels]);
+        navigate('/reeltalk');
+      }
+    } catch (err) {
+      console.error('Error creating reel:', err);
+      alert('Failed to create reel. Please try again.');
+    }
   };
 
-  // ✅ Fetch Reels When User Logs In
-  useEffect(() => {
-    const fetchReels = async () => {
-      const reelsData = await reelService.index();
-      console.log('Fetched Reels:', reelsData);
-      setReels(reelsData || []);
-    };
+  const handleDeleteReel = async (reelId) => {
+    try {
+      console.log('Deleting reel with ID:', reelId);
+      const response = await reelService.deleteReel(reelId);
+      console.log('Delete response:', response);
+      
+      if (response) {
+        setReels(prevReels => prevReels.filter(reel => reel._id !== reelId));
+        return true;
+      }
+      throw new Error('Failed to delete reel');
+    } catch (error) {
+      console.error('Error deleting reel:', error);
+      alert('Failed to delete reel. Please try again later.');
+      return false;
+    }
+  };
 
-    if (user) fetchReels();
-  }, [user]);
-  
-
+  if (userLoading) {
+    return <div className="loading">Loading...</div>;
+  }
 
   return (
     <>
-
       <NavBar />
       <Routes>
-        <Route path='/' element={user ? <Dashboard /> : <Landing />} />
+        <Route path='/' element={user ? <TrendingReels /> : <Landing />} />
         {user ? (
           <>
-            <Route path='/reeltalk' element={<ReelList reels={reels} setReels={setReels} />} />
+            <Route path='/reeltalk' element={
+              <ReelList 
+                reels={reels} 
+                setReels={setReels} 
+                handleDeleteReel={handleDeleteReel}
+                loading={loading}
+                error={error}
+              />
+            } />
             <Route path='/reels/new' element={<ReelForm onSubmit={handleAddReel} />} />
-            <Route path='/reels/:reelId' element={<ReelDetails  handleDeleteReel={handleDeleteReel}/>} />
-            <Route path='/trendingReels' element={<TrendingReels />} />
-            <Route path='/reels/:reelId/edit' element={<EditReel />} />
+            <Route path='/reels/:reelId' element={<ReelDetails handleDeleteReel={handleDeleteReel} />} />
+            <Route path='/reels/:reelId/edit' element={<EditReel setReels={setReels} handleDeleteReel={handleDeleteReel} />} />
           </>
         ) : (
           <>
