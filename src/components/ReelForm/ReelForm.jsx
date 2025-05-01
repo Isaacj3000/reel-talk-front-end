@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import './ReelForm.css';
 
 const ReelForm = ({ onSubmit }) => {
     const [formData, setFormData] = useState({
         title: 'Life Hack 👀💬',
         text: '',
-        comment: '',  // Added comment field
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (evt) => {
         const { name, value } = evt.target;
@@ -13,45 +15,68 @@ const ReelForm = ({ onSubmit }) => {
             ...formData,
             [name]: value,
         });
+        // Clear error when user starts typing
+        if (error) setError('');
     };
 
-    const handleSubmit = (evt) => {
+    const handleSubmit = async (evt) => {
         evt.preventDefault();
-        onSubmit(formData);  //  Send data to parent (e.g., API)
+        if (!formData.text.trim()) {
+            setError('Please enter some content for your reel');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await onSubmit(formData);
+        } catch (err) {
+            setError('Failed to create reel. Please try again.');
+            console.error('Error creating reel:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label htmlFor='title-input'>Title:</label>
-            <input
-                required
-                type='text'
-                name='title'
-                id='title-input'
-                value={formData.title}
-                onChange={handleChange}
-            />
+        <div className="reel-form-container">
+            <form className="reel-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="title-input">Title</label>
+                    <input
+                        required
+                        type="text"
+                        name="title"
+                        id="title-input"
+                        value={formData.title}
+                        onChange={handleChange}
+                        disabled={loading}
+                    />
+                </div>
 
-            <label htmlFor='text-input'>Text:</label>
-            <textarea
-                required
-                name='text'
-                id='text-input'
-                value={formData.text}
-                onChange={handleChange}
-            />
+                <div className="form-group">
+                    <label htmlFor="text-input">Content</label>
+                    <textarea
+                        required
+                        name="text"
+                        id="text-input"
+                        value={formData.text}
+                        onChange={handleChange}
+                        placeholder="Share your life hack or interesting story..."
+                        disabled={loading}
+                    />
+                </div>
 
-            {/* Added Initial Comment Field */}
-            <label htmlFor='comment-input'>Add a Comment:</label>
-            <textarea
-                name='comment'
-                id='comment-input'
-                value={formData.comment}
-                onChange={handleChange}
-            />
+                {error && <div className="error-message">{error}</div>}
 
-            <button type='submit'>Submit</button>
-        </form>
+                <button 
+                    type="submit" 
+                    className="submit-btn"
+                    disabled={loading}
+                >
+                    {loading ? 'Creating...' : 'Create Reel'}
+                </button>
+            </form>
+        </div>
     );
 };
 

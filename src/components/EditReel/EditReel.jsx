@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as reelService from "../../services/reelService";
+import "./EditReel.css";
 
-const EditReel = ({ setReels }) => {
+const EditReel = ({ setReels, handleDeleteReel }) => {
     const { reelId } = useParams();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -46,34 +47,52 @@ const EditReel = ({ setReels }) => {
         }
     };
 
+    const handleDelete = async () => {
+        if (!window.confirm("Are you sure you want to delete this reel? This action cannot be undone.")) return;
+        try {
+            await handleDeleteReel(reelId);
+            navigate('/reeltalk');
+        } catch (err) {
+            console.error("Error deleting reel:", err);
+            setError("Failed to delete reel.");
+        }
+    };
+
     if (loading) return <p>Loading...</p>;
-    if (error) return <p>{error}</p>;
+    if (error) return <p className="error-message">{error}</p>;
 
     return (
-        <main>
+        <main className="edit-reel-container">
             <h1>Edit Reel</h1>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="title">Title:</label>
-                <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                />
+            <form onSubmit={handleSubmit} className="edit-reel-form">
+                <div className="form-group">
+                    <label htmlFor="title">Title:</label>
+                    <input
+                        type="text"
+                        name="title"
+                        id="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
 
-                <label htmlFor="text">Text:</label>
-                <textarea
-                    name="text"
-                    id="text"
-                    value={formData.text}
-                    onChange={handleChange}
-                    required
-                />
+                <div className="form-group">
+                    <label htmlFor="text">Text:</label>
+                    <textarea
+                        name="text"
+                        id="text"
+                        value={formData.text}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
 
-                <button type="submit">Update Reel</button>
-                <button type="button" onClick={() => navigate(`/reels/${reelId}`)}>Cancel</button>
+                <div className="button-group">
+                    <button type="submit" className="save-btn">Update Reel</button>
+                    <button type="button" onClick={() => navigate(`/reels/${reelId}`)} className="cancel-btn">Cancel</button>
+                    <button type="button" onClick={handleDelete} className="delete-btn">Delete Reel</button>
+                </div>
             </form>
         </main>
     );

@@ -3,6 +3,7 @@ import { useEffect, useState, useContext } from "react";
 import { UserContext } from "../../contexts/UserContext";
 import * as reelService from "../../services/reelService";
 import CommentForm from "../CommentForm/CommentForm";
+import './ReelDetails.css';
 
 const ReelDetails = ({ handleDeleteReel }) => {
     const { reelId } = useParams();
@@ -11,34 +12,41 @@ const ReelDetails = ({ handleDeleteReel }) => {
     const [reel, setReel] = useState(null);
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedCommentText, setEditedCommentText] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchReel = async () => {
             try {
-                const reelData = await reelService.show(reelId);
-                setReel(reelData);
-            } catch (error) {
-                console.error("Error fetching reel:", error);
+                const data = await reelService.show(reelId);
+                console.log('Fetched reel data:', data); // Debug log
+                setReel(data);
+            } catch (err) {
+                setError('Failed to load reel');
+                console.error('Error fetching reel:', err);
+            } finally {
+                setLoading(false);
             }
         };
+
         fetchReel();
     }, [reelId]);
 
-    if (!reel) return <main>Loading...</main>;
+    if (loading) return <div className="loading">Loading...</div>;
+    if (error) return <div className="error">{error}</div>;
+    if (!reel) return <div className="error">Reel not found</div>;
 
     // Handle Adding Comments
     const handleAddComment = async (commentFormData) => {
-        console.log("Reel ID before sending comment:", reelId);
-        if (!reelId) {
-            console.error("Error: reelId is undefined! Cannot post comment.");
-            return;
-        }
-
-        const newComment = await reelService.createComment(reelId, commentFormData);
-        if (newComment) {
-            setReel({ ...reel, comments: [...(reel.comments || []), newComment] });
-        } else {
-            console.error("Failed to create comment");
+        try {
+            const newComment = await reelService.createComment(reelId, commentFormData);
+            setReel(prevReel => ({
+                ...prevReel,
+                comments: [...(prevReel.comments || []), newComment]
+            }));
+        } catch (err) {
+            console.error('Error creating comment:', err);
+            setError('Failed to add comment');
         }
     };
 
@@ -90,76 +98,45 @@ const ReelDetails = ({ handleDeleteReel }) => {
     };
 
     return (
-        <main>
-            <section>
-                <header>
-                    <p>{reel?.category?.toUpperCase() || "No Category"}</p>
-                    <h1>{reel?.title || "Untitled Reel"}</h1>
-                    <p>
-                        {reel?.author?.username
-                            ? `${reel.author.username} posted on ${new Date(reel.createdAt).toLocaleDateString()}`
-                            : "Unknown Author"}
-                    </p>
-                </header>
-                <p>{reel?.text || "No content available"}</p>
-
-                {/* Delete Reel Button */}
-                {user?._id === reel?.author?._id && (
-                    <button onClick={handleDelete} style={{ background: "red", color: "white", padding: "8px", borderRadius: "5px" }}>
-                     Delete Reel
-                    </button>
-                )}
-            </section>
-
-            {/* Comments Section */}
-            <section>
+        <div className="reel-details">
+            <h1 className="reel-title">{reel.title}</h1>
+            <div className="reel-content">
+                <p>{reel.text}</p>
+            </div>
+            <div className="reel-meta">
+                <span className="author">
+                    By {reel.author?.username || user?.username || 'Unknown'}
+                </span>
+                <span className="date">
+                    {new Date(reel.createdAt).toLocaleDateString()}
+                </span>
+            </div>
+            <div className="comments-section">
                 <h2>Comments</h2>
-                <CommentForm handleAddComment={handleAddComment} />
-                {reel.comments?.length > 0 ? (
-                    reel.comments.map((comment) => (
-                        <article key={comment._id}>
-                            <header>
-                                <p>
-                                    {`${comment.author?.username || "Anonymous"} posted on 
-                                    ${new Date(comment.createdAt).toLocaleDateString()}`}
-                                </p>
-                            </header>
-                            {/* Allow Editing a Comment */}
-                            {editingCommentId === comment._id ? (
-                                <div>
-                                    <input
-                                        type="text"
-                                        value={editedCommentText}
-                                        onChange={(e) => setEditedCommentText(e.target.value)}
-                                    />
-                                    <button onClick={() => handleUpdateComment(comment._id)}> Save</button>
-                                    <button onClick={() => setEditingCommentId(null)}> Cancel</button>
-                                </div>
-                            ) : (
-                                <>
-                                    <p>{comment.text}</p>
-                                    {user?._id === comment.author?._id && (
-                                        <>
-                                            <button
-                                                onClick={() => {
-                                                    setEditingCommentId(comment._id);
-                                                    setEditedCommentText(comment.text);
-                                                }}
-                                            >
-                                                 Edit
-                                            </button>
-                                            <button onClick={() => handleDeleteComment(comment._id)}> Delete</button>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                        </article>
-                    ))
-                ) : (
-                    <p>No comments yet. Be the first to comment!</p>
-                )}
-            </section>
-        </main>
+                <CommentForm onSubmit={handleAddComment} />
+                <div className="comments-list">
+                    {reel.comments?.map(comment => (
+                        <div key={comment._id} className="comment">
+                            <p className="comment-text">{comment.text}</p>
+                            <div className="comment-meta">
+                                <span className="comment-author">
+                                    {comment.author?.username || 'Unknown'}
+                                </span>
+                                <span className="comment-date">
+                                    {new Date(comment.createdAt).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            {/* Delete Reel Button */}
+            {user?._id === reel?.author?._id && (
+                <button onClick={handleDelete} style={{ background: "red", color: "white", padding: "8px", borderRadius: "5px" }}>
+                 Delete Reel
+                </button>
+            )}
+        </div>
     );
 };
 
