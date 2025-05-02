@@ -107,11 +107,27 @@ const create = async (reelFormData) => {
     try {
         const token = getAuthToken();
         const user = getUserFromToken(token);
+        
+        console.log('Creating reel with user data:', {
+            userId: user._id,
+            username: user.username,
+            token: token
+        });
 
         // Validate reel data
         if (!reelFormData.title || !reelFormData.text) {
             throw new Error('Title and text are required');
         }
+
+        const requestBody = {
+            ...reelFormData,
+            author: {
+                _id: user._id,
+                username: user.username
+            }
+        };
+
+        console.log('Sending reel creation request with data:', requestBody);
 
         const res = await fetch(BASE_URL, {
             method: 'POST',
@@ -119,12 +135,31 @@ const create = async (reelFormData) => {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                ...reelFormData,
-                author: user._id
-            }),
+            body: JSON.stringify(requestBody),
         });
-        return handleResponse(res);
+
+        console.log('Reel creation response status:', res.status);
+        
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Error response:', errorText);
+            throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
+
+        const responseData = await res.json();
+        console.log('Created reel response:', responseData);
+        
+        // Always ensure the author data is properly structured
+        const finalReel = {
+            ...responseData,
+            author: {
+                _id: user._id,
+                username: user.username
+            }
+        };
+
+        console.log('Final reel data with author:', finalReel);
+        return finalReel;
     } catch (err) {
         console.error('🔥 Create Reel Error:', err);
         throw err;
@@ -136,10 +171,10 @@ const createComment = async (reelId, commentFormData) => {
         const token = getAuthToken();
         const user = getUserFromToken(token);
 
-        console.log('Creating comment with data:', {
-            reelId,
-            commentFormData,
-            userId: user._id
+        console.log('Creating comment with user data:', {
+            userId: user._id,
+            username: user.username,
+            token: token
         });
 
         // Validate comment data
@@ -147,13 +182,15 @@ const createComment = async (reelId, commentFormData) => {
             throw new Error('Comment text is required');
         }
 
-        // Format the comment data with minimal required fields
-        const commentData = {
+        const requestBody = {
             text: commentFormData.text.trim(),
-            author: user._id
+            author: {
+                _id: user._id,
+                username: user.username
+            }
         };
 
-        console.log('Sending comment data:', commentData);
+        console.log('Sending comment creation request with data:', requestBody);
 
         const res = await fetch(`${BASE_URL}/${reelId}/comments`, {
             method: 'POST',
@@ -161,38 +198,31 @@ const createComment = async (reelId, commentFormData) => {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(commentData),
+            body: JSON.stringify(requestBody),
         });
 
-        console.log('Response status:', res.status);
+        console.log('Comment creation response status:', res.status);
         
         if (!res.ok) {
             const errorText = await res.text();
             console.error('Error response:', errorText);
-            let errorMessage;
-            try {
-                const errorData = JSON.parse(errorText);
-                errorMessage = errorData.message || `Error ${res.status}: ${res.statusText}`;
-            } catch (e) {
-                errorMessage = `Error ${res.status}: ${res.statusText}`;
-            }
-            throw new Error(errorMessage);
+            throw new Error(`Error ${res.status}: ${res.statusText}`);
         }
 
-        // Get the created comment
         const responseData = await res.json();
-        console.log('Comment created successfully:', responseData);
-
-        // Return a simplified comment object with the necessary data
-        return {
-            _id: responseData._id,
-            text: responseData.text,
+        console.log('Created comment response:', responseData);
+        
+        // Always ensure the author data is properly structured
+        const finalComment = {
+            ...responseData,
             author: {
                 _id: user._id,
                 username: user.username
-            },
-            createdAt: new Date().toISOString()
+            }
         };
+
+        console.log('Final comment data with author:', finalComment);
+        return finalComment;
     } catch (error) {
         console.error("🔥 Create Comment Error:", error);
         throw error;
