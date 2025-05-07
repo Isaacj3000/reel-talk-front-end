@@ -22,7 +22,20 @@ const getAuthToken = () => {
 // Helper function to get user info from token
 const getUserFromToken = (token) => {
     try {
-        return JSON.parse(atob(token.split('.')[1])).payload;
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        console.log('Decoded token:', decoded);
+        
+        // Handle the nested payload structure
+        const userData = decoded.payload || decoded;
+        console.log('Extracted user data:', userData);
+        
+        // Ensure we have the required fields
+        if (!userData._id) {
+            console.error('Token missing user ID');
+            throw new Error('Invalid token structure');
+        }
+        
+        return userData;
     } catch (error) {
         console.error('Error parsing token:', error);
         throw new Error('Invalid authentication token');
@@ -35,7 +48,7 @@ const getUserFromToken = (token) => {
 const index = async () => {
     try {
         const token = getAuthToken();
-        const res = await fetch(`${BASE_URL}`, {
+        const res = await fetch(`${BASE_URL}?populate=author`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return handleResponse(res);
@@ -61,7 +74,7 @@ const show = async (reelId) => {
 const fetchTrendingReels = async () => {
     try {
         const token = getAuthToken();
-        const res = await fetch(`${BASE_URL}`, {
+        const res = await fetch(`${BASE_URL}?populate=author`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -110,8 +123,7 @@ const create = async (reelFormData) => {
         
         console.log('Creating reel with user data:', {
             userId: user._id,
-            username: user.username,
-            token: token
+            username: user.username
         });
 
         // Validate reel data
@@ -149,7 +161,7 @@ const create = async (reelFormData) => {
         const responseData = await res.json();
         console.log('Created reel response:', responseData);
         
-        // Always ensure the author data is properly structured
+        // Add author data to the response if it's not included
         const finalReel = {
             ...responseData,
             author: {
@@ -157,7 +169,7 @@ const create = async (reelFormData) => {
                 username: user.username
             }
         };
-
+        
         console.log('Final reel data with author:', finalReel);
         return finalReel;
     } catch (err) {
@@ -317,21 +329,35 @@ const likeComment = async (reelId, commentId) => {
 const deleteReel = async (reelId) => {
     try {
         const token = getAuthToken();
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
         const user = getUserFromToken(token);
+        if (!user || !user._id) {
+            throw new Error('Invalid user data in token');
+        }
         
-        console.log('Attempting to delete reel:', {
-            reelId,
-            userId: user._id,
+        console.log('=== Frontend Delete Reel Request ===');
+        console.log('Reel ID:', reelId);
+        console.log('User from token:', {
+            id: user._id,
             username: user.username
         });
+        console.log('Token format:', {
+            length: token.length,
+            startsWith: token.substring(0, 10),
+            hasBearer: token.startsWith('Bearer ')
+        });
+
+        // Ensure token is in the correct format
+        const authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
         const res = await fetch(`${BASE_URL}/${reelId}`, {
             method: 'DELETE',
             headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'X-User-ID': user._id,
-                'X-Username': user.username
+                Authorization: authToken,
+                'Content-Type': 'application/json'
             }
         });
 
@@ -340,29 +366,10 @@ const deleteReel = async (reelId) => {
         if (!res.ok) {
             const errorText = await res.text();
             console.error('Delete error response:', errorText);
-            let errorMessage;
-            try {
-                const errorData = JSON.parse(errorText);
-                errorMessage = errorData.message || `Error ${res.status}: ${res.statusText}`;
-            } catch (e) {
-                errorMessage = `Error ${res.status}: ${res.statusText}`;
-            }
-            throw new Error(errorMessage);
+            throw new Error(`Failed to delete reel: ${errorText}`);
         }
 
-        // If the response is successful but empty, return true
-        if (res.status === 204) {
-            return true;
-        }
-
-        // Try to parse the response as JSON
-        try {
-            const data = await res.json();
-            return data;
-        } catch (e) {
-            // If parsing fails but status is ok, return true
-            return true;
-        }
+        return true;
     } catch (error) {
         console.error("🔥 Delete Reel Error:", error);
         throw error;

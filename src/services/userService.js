@@ -21,8 +21,11 @@ const index = async () => {
 
 const validateToken = async (token) => {
   try {
-    // Instead of a separate validate endpoint, we'll use the index endpoint
-    // which will naturally validate the token through the auth middleware
+    // First, try to decode the token to get user data
+    const decoded = JSON.parse(atob(token.split('.')[1]));
+    const userData = decoded.payload || decoded;
+
+    // Then validate the token with the backend
     const res = await fetch(BASE_URL, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -31,8 +34,8 @@ const validateToken = async (token) => {
       throw new Error('Unauthorized');
     }
 
-    const data = await res.json();
-    return data;
+    // Return the user data from the token
+    return userData;
   } catch (err) {
     console.error('Token validation error:', err);
     throw new Error('Unauthorized');
