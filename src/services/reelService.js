@@ -185,8 +185,7 @@ const createComment = async (reelId, commentFormData) => {
 
         console.log('Creating comment with user data:', {
             userId: user._id,
-            username: user.username,
-            token: token
+            username: user.username
         });
 
         // Validate comment data
@@ -224,7 +223,7 @@ const createComment = async (reelId, commentFormData) => {
         const responseData = await res.json();
         console.log('Created comment response:', responseData);
         
-        // Always ensure the author data is properly structured
+        // Ensure the author data is properly structured in the response
         const finalComment = {
             ...responseData,
             author: {
